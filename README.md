@@ -6,7 +6,7 @@ It provides an automated workflow to process raw product data, apply multi-level
 
 ## Features
 
-- Automated **web scraping** pipeline to gather product data.
+- Automated **web scraping** pipeline to gather product data using Gemini API.
 - **Data cleaning and preprocessing** of raw text and metadata.
 - Multi-level **product classification pipeline** using NLP and traditional machine learning models.
 - Structured category outputs to enhance **catalog navigation, search, and analytics**.
@@ -55,24 +55,20 @@ These results demonstrate the value of AI-driven solutions in enhancing the orga
     cd AI-Based-Multi-Level-Product-Classification-for-B2B-Catalogs
     ```
 
-2. Install required dependencies:
+2. Run the **web scraping pipeline** (optional, if gathering fresh data):
     ```bash
-    pip install -r requirements.txt
+    python Web\ Scrapping/Data_Extraction_Pipeline.py
     ```
 
-3. Run the **web scraping pipeline** (optional, if gathering fresh data):
+3.. Run **data cleaning and preprocessing**:
     ```bash
-    python Web\ Scrapping/scrape_products.py
+    python Data\ Cleaning/Data_Cleaning.py
     ```
 
-4. Run **data cleaning and preprocessing**:
+4.. Train and evaluate classification models:
     ```bash
-    python Data\ Cleaning/clean_data.py
-    ```
-
-5. Train and evaluate classification models:
-    ```bash
-    python Modelling/train_classification_model.py
+    python Modelling/Logistic_Regression.py
+    python Modelling/XGBOOST.py
     ```
 
 ## Future Enhancements
