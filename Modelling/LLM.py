@@ -10,11 +10,9 @@ import pandas as pd
 import json
 from google.colab import files
 
-# 读取 Excel 文件（也支持 CSV，替换成 pd.read_csv 即可）
 file_path = "/content/Test_Set.xlsx"
 df = pd.read_excel(file_path)
 
-# 拼接三段产品描述字段
 def build_input(row):
     d1 = str(row.get("product_desc_1", "")).strip()
     d2 = str(row.get("product_desc_2", "")).strip()
@@ -23,16 +21,16 @@ def build_input(row):
 
 df["input_text"] = df.apply(build_input, axis=1)
 
-# 删除分类或描述缺失的行
+
 df = df.dropna(subset=["FTICategory1", "FTICategory2", "FTICategory3", "input_text"])
 
-# 可选：最多5000条
+
 df = df.iloc[:5000]
 
-# 输出文件路径，文件名为 1.jsonl
+
 output_path = "/content/1.jsonl"
 
-# 写入符合 deepseek_chat 格式的 jsonl 文件
+
 with open(output_path, "w", encoding="utf-8") as f:
     for _, row in df.iterrows():
         item = {
@@ -51,7 +49,7 @@ with open(output_path, "w", encoding="utf-8") as f:
 
 print("✅ Done! File saved as: 1.jsonl")
 
-# 自动触发下载
+
 files.download(output_path)
 
 
@@ -65,23 +63,23 @@ files.download(output_path)
 # In[ ]:
 
 
-# 指定两个输入文件路径
+
 input_file_1 = "/content/1.jsonl"
 input_file_2 = "/content/deepseek_chattest_format.jsonl"
 
-# 输出文件路径
+
 output_file = "/content/training_final.jsonl"
 
-# 打开输出文件进行写入
+
 with open(output_file, "w", encoding="utf-8") as outfile:
     for file_path in [input_file_1, input_file_2]:
         with open(file_path, "r", encoding="utf-8") as infile:
             for line in infile:
                 outfile.write(line)
 
-print("✅ 合并完成：文件保存为 training_final.jsonl")
+print("training_final.jsonl")
 
-# 自动下载合并后的文件
+
 from google.colab import files
 files.download(output_file)
 
@@ -92,23 +90,23 @@ files.download(output_file)
 import json
 from google.colab import files
 
-# 原始文件路径（你上传的）
+
 input_path = "/content/training_final.jsonl"
 
-# 输出文件路径
+
 output_path = "/content/training_final_updated.jsonl"
 
-# 替换后的新提示语
+
 new_prompt_prefix = "Please extract the Level 1, Level 2, and Level 3 categories from the product description below: "
 
 with open(input_path, "r", encoding="utf-8") as infile, open(output_path, "w", encoding="utf-8") as outfile:
     for line in infile:
         obj = json.loads(line)
 
-        # 修改 user 的 content 字段（假设在 messages[0] 中）
+
         if obj.get("messages") and obj["messages"][0]["role"] == "user":
             original = obj["messages"][0]["content"]
-            # 提取原始 product description（提示语后的部分）
+            # product description）
             if ":" in original:
                 desc = original.split(":", 1)[1].strip()
             else:
@@ -117,7 +115,7 @@ with open(input_path, "r", encoding="utf-8") as infile, open(output_path, "w", e
 
         outfile.write(json.dumps(obj, ensure_ascii=False) + "\n")
 
-print("✅ Prompt 替换完成，文件已保存为：training_final_updated.jsonl")
+print("Prompt：training_final_updated.jsonl")
 
 files.download(output_path)
 
@@ -246,7 +244,7 @@ class ChatMLDataset(Dataset):
             "labels": torch.tensor(item["labels"], dtype=torch.long)
         }
 
-# 🔁 Load your dataset here (upload your JSONL to /content/ first)
+#  Load your dataset here (upload your JSONL to /content/ first)
 dataset_path = "/content/1.jsonl"
 train_dataset = ChatMLDataset(dataset_path, tokenizer)
 
@@ -395,13 +393,13 @@ def extract_levels(text):
 df[["pred_level1", "pred_level2", "pred_level3"]] = df["raw_prediction"].apply(lambda x: pd.Series(extract_levels(x)))
 
 # 7. Print accuracy and full classification report for each category level
-print("\n📊 Level 1 Accuracy:", accuracy_score(df["FTICategory1"], df["pred_level1"]))
+print("\nLevel 1 Accuracy:", accuracy_score(df["FTICategory1"], df["pred_level1"]))
 print(classification_report(df["FTICategory1"], df["pred_level1"], zero_division=0))
 
-print("\n📊 Level 2 Accuracy:", accuracy_score(df["FTICategory2"], df["pred_level2"]))
+print("\nLevel 2 Accuracy:", accuracy_score(df["FTICategory2"], df["pred_level2"]))
 print(classification_report(df["FTICategory2"], df["pred_level2"], zero_division=0))
 
-print("\n📊 Level 3 Accuracy:", accuracy_score(df["FTICategory3"], df["pred_level3"]))
+print("\nLevel 3 Accuracy:", accuracy_score(df["FTICategory3"], df["pred_level3"]))
 print(classification_report(df["FTICategory3"], df["pred_level3"], zero_division=0))
 
 # 8. Save the full prediction results to a CSV file
@@ -429,7 +427,7 @@ values = [round(acc * 100, 2) for acc in accuracies.values()]
 sns.barplot(x=levels, y=values, palette="Blues_d")
 plt.ylim(0, 100)
 plt.ylabel("Accuracy (%)")
-plt.title("📊 Prediction Accuracy per Category Level")
+plt.title("Prediction Accuracy per Category Level")
 for i, v in enumerate(values):
     plt.text(i, v + 1, f"{v}%", ha="center", fontweight="bold")
 
@@ -448,7 +446,7 @@ f1_level2 = f1_score(df["FTICategory2"], df["pred_level2"], average='macro', zer
 f1_level3 = f1_score(df["FTICategory3"], df["pred_level3"], average='macro', zero_division=0)
 
 # Print F1 results
-print("📊 Macro F1-scores by level:")
+print("Macro F1-scores by level:")
 print(f"Level 1 F1-score: {f1_level1:.4f}")
 print(f"Level 2 F1-score: {f1_level2:.4f}")
 print(f"Level 3 F1-score: {f1_level3:.4f}")
@@ -457,7 +455,7 @@ print(f"Level 3 F1-score: {f1_level3:.4f}")
 # In[ ]:
 
 
-print("📊 Label distribution:")
+print("Label distribution:")
 print(df["FTICategory3"].value_counts())
 
 
@@ -469,7 +467,7 @@ from sklearn.metrics import confusion_matrix
 plt.figure(figsize=(10, 8))
 cm = confusion_matrix(df["FTICategory1"], df["pred_level1"], labels=df["FTICategory1"].unique())
 sns.heatmap(cm, annot=False, fmt='d', cmap="YlGnBu", xticklabels=True, yticklabels=True)
-plt.title("🧯 Confusion Matrix for Level 1")
+plt.title("Confusion Matrix for Level 1")
 plt.xlabel("Predicted")
 plt.ylabel("True")
 plt.tight_layout()
@@ -499,7 +497,7 @@ for level in [1, 2, 3]:
     }
 
 # Print the results
-print("📊 F1-scores by category level:")
+print("F1-scores by category level:")
 for level, scores in f1_results.items():
     print(f"\n{level}:")
     print(f"  Macro F1-score:    {scores['macro']:.4f}")
@@ -527,7 +525,7 @@ error_counts = (
     .sort_values(by="count", ascending=False)
 )
 
-print("📉 Top 10 Most Frequent Misclassifications (Level 3):")
+print("Top 10 Most Frequent Misclassifications (Level 3):")
 print(error_counts.head(10))
 
 
